@@ -1,0 +1,95 @@
+[
+    {
+        "wcs210.4881": [
+            {
+                "capacity": "24",
+                "days": "T R ",
+                "enr": 0,
+                "faculty": "Shahreen Binti Mat Nayan",
+                "finalExam": false,
+                "id": "26306",
+                "room": "8.322B",
+                "st": "1L",
+                "times": "12:00 PM-01:15 PM"
+            },
+            {
+                "capacity": "24",
+                "days": "T R ",
+                "enr": 0,
+                "faculty": "Carlos Abaunza",
+                "finalExam": false,
+                "id": "26306",
+                "room": "7.427",
+                "st": "2L",
+                "times": "12:00 PM-01:15 PM"
+            },
+            {
+                "capacity": "24",
+                "days": "T R ",
+                "enr": 0,
+                "faculty": "Carlos Abaunza",
+                "finalExam": false,
+                "id": "26306",
+                "room": "7.427",
+                "st": "3L",
+                "times": "10:30 AM-11:45 AM"
+            },
+            {
+                "capacity": "24",
+                "days": "T R ",
+                "enr": 0,
+                "faculty": "Bakhtiar Naghdipour",
+                "finalExam": false,
+                "id": "26306",
+                "room": "6.410",
+                "st": "4L",
+                "times": "09:00 AM-10:15 AM"
+            },
+            {
+                "capacity": "24",
+                "days": "T R ",
+                "enr": 0,
+                "faculty": "Shahreen Binti Mat Nayan",
+                "finalExam": false,
+                "id": "26306",
+                "room": "8.322B",
+                "st": "5L",
+                "times": "04:30 PM-05:45 PM"
+            },
+            {
+                "capacity": "24",
+                "days": "M W F ",
+                "enr": 0,
+                "faculty": "Shane Coates",
+                "finalExam": false,
+                "id": "26306",
+                "room": "7.427",
+                "st": "6L",
+                "times": "11:00 AM-11:50 AM"
+            },
+            {
+                "capacity": "24",
+                "days": "M W F ",
+                "enr": 0,
+                "faculty": "Shane Coates",
+                "finalExam": false,
+                "id": "26306",
+                "room": "7.427",
+                "st": "7L",
+                "times": "10:00 AM-10:50 AM"
+            },
+            {
+                "capacity": "24",
+                "days": "M W F ",
+                "enr": 0,
+                "faculty": "Shane Coates",
+                "finalExam": false,
+                "id": "26306",
+                "room": "7.427",
+                "st": "8L",
+                "times": "09:00 AM-09:50 AM"
+            }
+        ],
+        "wcs200.": []
+    }
+]
