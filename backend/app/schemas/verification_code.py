@@ -19,4 +19,4 @@ class UserRegistrationData(BaseModel):
 
     class Config:
         # This allows FastAPI to accept form data, not just JSON
-        orm_mode = True
+         pass

@@ -12,7 +12,7 @@ class ProjectInfo(BaseModel):
     title: str
 
     class Config:
-        orm_mode = True
+         pass
 
 
 class ProjectUpdate(BaseModel):
@@ -37,7 +37,7 @@ class ProjectDatabaseInfo(BaseModel):
     owner_id: int
 
     class Config:
-        orm_mode = True
+         pass
 
 
 class ProjectDatabaseUpdate(BaseModel):
@@ -58,7 +58,7 @@ class ProjectTableInfo(BaseModel):
     project_database_id: int
 
     class Config:
-        orm_mode = True
+         pass
 
 
 class ProjectTableUpdate(BaseModel):

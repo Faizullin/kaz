@@ -1,13 +1,15 @@
-from passlib.context import CryptContext
-from jose import jwt, JWTError
 from datetime import datetime, timedelta
+
 from fastapi import HTTPException, Depends
+from fastapi import WebSocket
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from ..repositories.users import UsersRepository
+
 from ..database.database import get_db
 from ..database.models import User
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import WebSocket
+from ..repositories.users import UsersRepository
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -85,6 +87,7 @@ def check_farmer_approval(token: str = Depends(oauth2_scheme), db: Session = Dep
             status_code=403, detail="Access forbidden: Farmer is not approved."
         )
     return user
+
 
 async def get_current_user_websocket(websocket: WebSocket, db: Session = Depends(get_db)) -> User:
     try:

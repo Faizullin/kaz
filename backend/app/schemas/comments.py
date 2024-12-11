@@ -14,7 +14,7 @@ class CommentInfo(BaseModel):
     author_id: int
 
     class Config:
-        orm_mode = True
+         pass
         from_attributes = True
 
 

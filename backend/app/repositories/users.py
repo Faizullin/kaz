@@ -17,27 +17,30 @@ from datetime import datetime, timedelta
 class UsersRepository:
     def create_user(self, db: Session, user_data: UserCreate) -> User:
         try:
+            print("create_user")
             existing_user = db.query(User).filter(User.email == user_data.email).first()
 
+            print("existing_user", existing_user)
             if existing_user:
                 raise HTTPException(
                     status_code=400, detail="User with this email already exists"
                 )
 
-            existing_user_by_phone = db.query(User).filter(User.phone == user_data.phone).first()
-            
-            if existing_user_by_phone:
-                raise HTTPException(
-                    status_code=400, detail="User with this phone number already exists"
-                )
-
+            # existing_user_by_phone = db.query(User).filter(User.email == user_data.phone).first()
+            #
+            # if existing_user_by_phone:
+            #     raise HTTPException(
+            #         status_code=400, detail="User with this phone number already exists"
+            #     )
+            print("a")
             new_user = User(
                 fullname=user_data.fullname,
                 email=user_data.email,
                 phone=user_data.phone,
                 password_hashed=user_data.password,
-                role=user_data.role,
+                role="Student",
             )
+            print(new_user)
 
             db.add(new_user)
             db.commit()

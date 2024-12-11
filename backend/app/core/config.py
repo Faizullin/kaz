@@ -1,12 +1,9 @@
 import secrets
-import warnings
 from typing import Annotated, Any, Literal
 
-from pydantic import (AnyUrl, BeforeValidator, HttpUrl, PostgresDsn,
-                      computed_field, model_validator)
+from pydantic import (AnyUrl, BeforeValidator, computed_field)
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Self
 
 
 def parse_cors(v: Any) -> list[str] | str:
@@ -44,24 +41,24 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     # SENTRY_DSN: HttpUrl | None = None
-    # POSTGRES_SERVER: str
-    # POSTGRES_PORT: int = 5432
-    # POSTGRES_USER: str
-    # POSTGRES_PASSWORD: str = ""
-    # POSTGRES_DB: str = ""
+    DB_NAME: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_PORT: int = 5432
 
-    # @computed_field  # type: ignore[prop-decorator]
-    # @property
-    # def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
-    #     return MultiHostUrl.build(
-    #         scheme="postgresql+psycopg",
-    #         username=self.POSTGRES_USER,
-    #         password=self.POSTGRES_PASSWORD,
-    #         host=self.POSTGRES_SERVER,
-    #         port=self.POSTGRES_PORT,
-    #         path=self.POSTGRES_DB,
-    #     )
-    
+    @computed_field
+    @property
+    def POSTGRESQL_DATABASE_URI(self) -> MultiHostUrl:
+        return MultiHostUrl.build(
+            scheme="postgresql+psycopg",
+            username=self.DB_USER,
+            password=self.DB_PASSWORD,
+            host=self.DB_HOST,
+            port=self.DB_PORT,
+            path=self.DB_NAME,
+        )
+
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
     SMTP_PORT: int = 587
@@ -111,9 +108,11 @@ class Settings(BaseSettings):
     #     )
 
     #     return self
-    
+
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 14400
+
+    GEMINI_API_KEY: str
 
 
 settings = Settings()

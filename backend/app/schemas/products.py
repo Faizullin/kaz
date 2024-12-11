@@ -7,7 +7,7 @@ class ProductImageInfo(BaseModel):
     image_url: str
 
     class Config:
-        orm_mode = True
+         pass
 
 
 class ProductCreate(BaseModel):
@@ -29,7 +29,7 @@ class ProductInfo(BaseModel):
     images: List[ProductImageInfo] = []
 
     class Config:
-        orm_mode = True
+         pass
 
 
 class ProductUpdate(BaseModel):

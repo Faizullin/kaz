@@ -24,5 +24,5 @@ class FarmerInfo(BaseModel):
     user_id: int
 
     class Config:
-        orm_mode = True
+         pass
         from_attributes = True

@@ -23,4 +23,4 @@ class BuyerProfileWithUserInfo(BaseModel):
     profile: Optional[BuyerProfileInfo]
 
     class Config:
-        orm_mode = True
+         pass

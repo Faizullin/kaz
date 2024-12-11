@@ -1,256 +1,127 @@
 from datetime import datetime
+from enum import Enum
+from typing import Optional, List
 
-import pytz
-from sqlalchemy import (Boolean, Column, DateTime, Enum, Float, ForeignKey,
-                        Integer, String, Text)
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
-
-from .database import Base
-
-USER_ROLES = ("Student", "Admin", "SuperAdmin", "Tutor")
+from sqlalchemy import text
+from sqlmodel import Field, SQLModel, Relationship
 
 
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    fullname = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    phone = Column(String, unique=True, nullable=False)
-    password_hashed = Column(String, nullable=False)
-    role = Column(Enum(*USER_ROLES,
-                  name="user_roles"), nullable=False)
-    is_active = Column(Boolean, default=True)
-
-    # One-to-one relationships
-    # farmer_profile = relationship(
-    #     "FarmerProfile", back_populates="user", uselist=False)
-    # buyer_profile = relationship(
-    #     "BuyerProfile", back_populates="user", uselist=False)
-
-    # One-to-many relationships
-    # posts = relationship("Post", back_populates="user")
-    # comments = relationship("Comment", back_populates="user")
-    # cart_items = relationship(
-    #     "CartItem", back_populates="user", cascade="all, delete-orphan")
-    verification_codes = relationship(
-        "VerificationCode", back_populates="user")
-
-    # @property
-    # def profile(self):
-    #     """Return the appropriate profile based on the user's role."""
-    #     if self.role == "Farmer":
-    #         return self.farmer_profile
-    #     elif self.role == "Buyer":
-    #         return self.buyer_profile
-    #     else:
-    #         return {
-    #             "farmer_profile": self.farmer_profile,
-    #             "buyer_profile": self.buyer_profile,
-    #         }
+# Define enums for roles and other enumerations
+class UserRole(str, Enum):
+    STUDENT = "Student"
+    ADMIN = "Admin"
+    SUPER_ADMIN = "SuperAdmin"
+    TUTOR = "Tutor"
 
 
-# class FarmerProfile(Base):
-#     __tablename__ = "farmer_profiles"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     farm_name = Column(String, nullable=False)
-#     location = Column(String, nullable=False)
-#     farm_size = Column(Float, nullable=False)
-#     user_id = Column(Integer, ForeignKey("users.id"))
-#     is_approved = Column(Boolean, default=True)
-
-#     user = relationship("User", back_populates="farmer_profile")
-#     products = relationship("Product", back_populates="farmer")
+class OrderStatus(str, Enum):
+    PENDING = "Pending"
+    PROCESSING = "Processing"
+    DELIVERED = "Delivered"
+    CANCELLED = "Cancelled"
 
 
-# class BuyerProfile(Base):
-#     __tablename__ = "buyer_profiles"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     delivery_address = Column(String, nullable=False)
-#     user_id = Column(Integer, ForeignKey("users.id"))
-
-#     user = relationship("User", back_populates="buyer_profile")
-#     orders = relationship("Order", back_populates="buyer")
+class ProductCategory(str, Enum):
+    VEGETABLES = "Vegetables"
+    FRUITS = "Fruits"
+    SEEDS = "Seeds"
+    DAIRY = "Dairy"
+    MEAT = "Meat"
+    EQUIPMENT = "Equipment"
 
 
-# class Product(Base):
-#     __tablename__ = "products"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     name = Column(String, nullable=False)
-#     description = Column(Text, nullable=True)  # Add this line
-#     category = Column(
-#         Enum(
-#             "Vegetables",
-#             "Fruits",
-#             "Seeds",
-#             "Dairy",
-#             "Meat",
-#             "Equipment",
-#             name="product_category",
-#         ),
-#         nullable=False,
-#     )
-#     price = Column(Float, nullable=False)
-#     quantity = Column(Integer, nullable=False)
-#     farmer_id = Column(Integer, ForeignKey("farmer_profiles.id"))
-#     farmer = relationship("FarmerProfile", back_populates="products")
-#     order_items = relationship("OrderItem", back_populates="product")
-#     comments = relationship("Comment", back_populates="product")
-#     images = relationship(
-#         "ProductImage", back_populates="product", cascade="all, delete-orphan")
-#     cart_items = relationship(
-#         "CartItem", back_populates="product", cascade="all, delete-orphan")
+class PaymentStatus(str, Enum):
+    PENDING = "Pending"
+    COMPLETED = "Completed"
+    FAILED = "Failed"
 
 
-# class ProductImage(Base):
-#     __tablename__ = "product_images"
+class AbstractTimestampModel(SQLModel):
+    created_at: datetime = Field(
+        default_factory=datetime.now,
+        nullable=False,
+        sa_column_kwargs={
+            "server_default": text("current_timestamp(0)")
+        }
+    )
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-#     image_url = Column(String, nullable=False)
-
-#     product = relationship("Product", back_populates="images")
-
-
-# class Order(Base):
-#     __tablename__ = "orders"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     buyer_id = Column(Integer, ForeignKey("buyer_profiles.id"))
-#     total_price = Column(Float, nullable=False)
-#     status = Column(
-#         Enum("Pending", "Processing", "Delivered",
-#              "Cancelled", name="order_status"),
-#         default="Pending",
-#     )
-#     created_at = Column(DateTime(timezone=True), default=func.now())
-
-#     buyer = relationship("BuyerProfile", back_populates="orders")
-#     items = relationship("OrderItem", back_populates="order")
-#     payment = relationship("Payment", back_populates="order", uselist=False)
+    updated_at: datetime = Field(
+        default_factory=datetime.now,
+        nullable=False,
+        sa_column_kwargs={
+            "server_default": text("current_timestamp(0)"),
+            "onupdate": text("current_timestamp(0)")
+        }
+    )
 
 
-# # class OrderItem(Base):
-#     __tablename__ = "order_items"
+# User model
+class User(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    fullname: str
+    email: str = Field(index=True, unique=True)
+    phone: str = Field(unique=True)
+    password_hashed: str
+    role: UserRole
+    is_active: bool = Field(default=True)
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     product_id = Column(Integer, ForeignKey("products.id"))
-#     order_id = Column(Integer, ForeignKey("orders.id"))
-#     quantity = Column(Integer, nullable=False)
-
-#     product = relationship("Product", back_populates="order_items")
-#     order = relationship("Order", back_populates="items")
-
-
-# class Comment(Base):
-#     __tablename__ = "comments"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     content = Column(Text, nullable=False)
-#     created_at = Column(DateTime(timezone=True), default=func.now())
-#     author_id = Column(Integer, ForeignKey("users.id"))
-#     product_id = Column(Integer, ForeignKey("products.id"))
-
-#     user = relationship("User", back_populates="comments")
-#     product = relationship("Product", back_populates="comments")
+    # Relationships
+    verification_codes: List["VerificationCode"] = Relationship(back_populates="user")
+    messages_sent: List["Message"] = Relationship(back_populates="sender")
 
 
-# class Payment(Base):
-#     __tablename__ = "payments"
+# Chat model
+class Chat(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    buyer_id: int = Field(foreign_key="user.id")
+    farmer_id: int = Field(foreign_key="user.id")
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     order_id = Column(Integer, ForeignKey("orders.id"))
-#     amount = Column(Float, nullable=False)
-#     status = Column(
-#         Enum("Pending", "Completed", "Failed", name="payment_status"), nullable=False
-#     )
-
-#     order = relationship("Order", back_populates="payment")
+    messages: List["Message"] = Relationship(back_populates="chat")
 
 
-class Chat(Base):
-    __tablename__ = "chats"
+# Message model
+class Message(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    chat_id: int = Field(foreign_key="chat.id")
+    sender_id: int = Field(foreign_key="user.id")
+    content: str
 
-    id = Column(Integer, primary_key=True, index=True)
-    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    farmer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    messages = relationship(
-        "Message", back_populates="chat", cascade="all, delete-orphan")
-
-
-class Message(Base):
-    __tablename__ = "messages"
-
-    id = Column(Integer, primary_key=True, index=True)
-    chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(Text, nullable=False)
-    timestamp = Column(DateTime(timezone=True), default=func.now())
-
-    chat = relationship("Chat", back_populates="messages")
-    sender = relationship("User", backref="messages_sent")
+    chat: Chat = Relationship(back_populates="messages")
+    sender: User = Relationship(back_populates="messages_sent")
 
 
-# class CartItem(Base):
-#     __tablename__ = "cart_items"
+# VerificationCode model
+class VerificationCode(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    email: str = Field(index=True)
+    code: str
+    purpose: str  # e.g., 'registration' or 'login'
+    expires_at: datetime
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     user_id = Column(Integer, ForeignKey("users.id"))
-#     product_id = Column(Integer, ForeignKey("products.id"))
-#     quantity = Column(Integer, nullable=False)
-
-#     user = relationship("User", back_populates="cart_items")
-#     product = relationship("Product")
-
-
-class VerificationCode(Base):
-    __tablename__ = "verification_codes"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"),
-                     nullable=True)  # Nullable for registration
-    # For registration, user might not exist yet
-    email = Column(String, index=True, nullable=False)
-    code = Column(String, nullable=False)
-    purpose = Column(String, nullable=False)  # 'registration' or 'login'
-    expires_at = Column(DateTime, nullable=False)
-
-    user = relationship("User", back_populates="verification_codes")
+    user: User = Relationship(back_populates="verification_codes")
 
 
-class Project(Base):
-    __tablename__ = "projects"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"),)
-    
+# Project model
+class Project(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    owner_id: int = Field(foreign_key="user.id")
 
 
-class ProjectDatabase(Base):
-    __tablename__ = "project_databases"
+# ProjectDatabase model
+class ProjectDatabase(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    owner_id: int = Field(foreign_key="user.id")
+    project_id: int = Field(foreign_key="project.id")
+    connection_url: Optional[str] = None
+    connection_user: Optional[str] = None
+    connection_password: Optional[str] = None
+    chat_id: Optional[int] = Field(default=None, foreign_key="chat.id")
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    
-    owner_id = Column(Integer, ForeignKey("users.id"),)
-    project_id = Column(Integer, ForeignKey("projects.id"),)
-    connection_url = Column(String, nullable=True)
-    connection_user = Column(String, nullable=True)
-    connection_password = Column(String, nullable=True)
-    chat_id = Column(Integer, ForeignKey("chats.id"),)
-    
-    
-class ProjectTable(Base):
-    __tablename__ = "project_tables"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    project_database_id = Column(Integer, ForeignKey("project_databases.id"),)
-    migrated = Column(Boolean, default=False)
-    
+# ProjectTable placeholder
+class ProjectTable(AbstractTimestampModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    # Define additional fields here as required

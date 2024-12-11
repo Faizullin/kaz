@@ -1,20 +1,16 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from typing import Generator, Annotated
 
-Base = declarative_base()
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
+from fastapi import Depends
+from sqlmodel import create_engine, Session
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+from app.core.config import settings
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(str(settings.POSTGRESQL_DATABASE_URI))
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+def get_db() -> Generator[Session, None, None]:
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_db)]
